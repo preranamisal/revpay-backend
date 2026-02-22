@@ -1,8 +1,36 @@
+
+
+//package com.revpay.revpay_backend.config;
+//
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.context.annotation.Configuration;
+//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+//import org.springframework.security.web.SecurityFilterChain;
+//
+//@Configuration
+//public class SecurityConfig {
+//
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+//        http
+//            .csrf(csrf -> csrf.disable())
+//            .authorizeHttpRequests(auth -> auth
+//                .anyRequest().permitAll()
+//            );
+//
+//        return http.build();
+//    }
+//}
+
+
 package com.revpay.revpay_backend.config;
 
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.*;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.revpay.revpay_backend.security.JwtFilter;
@@ -10,22 +38,23 @@ import com.revpay.revpay_backend.security.JwtFilter;
 @Configuration
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+    private JwtFilter jwtFilter;
 
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable())  // disable CSRF for REST API
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/business/**").hasRole("BUSINESS")
-                    .anyRequest().authenticated()
+                .requestMatchers("/auth/**").permitAll()  // allow register & login
+                .anyRequest().authenticated()             // protect everything else
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
