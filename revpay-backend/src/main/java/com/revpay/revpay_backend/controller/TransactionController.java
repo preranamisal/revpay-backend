@@ -10,6 +10,9 @@ import com.revpay.revpay_backend.model.User;
 import com.revpay.revpay_backend.repository.UserRepository;
 import com.revpay.revpay_backend.service.TransactionService;
 
+import java.util.List;
+import com.revpay.revpay_backend.dto.TransactionResponse;
+
 @RestController
 @RequestMapping("/transactions")
 public class TransactionController {
@@ -57,5 +60,16 @@ public class TransactionController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return transactionService.withdrawMoney(user.getId(), request.getAmount());
+    }
+    
+    @GetMapping("/history")
+    public List<TransactionResponse> getHistory(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return transactionService.getTransactionHistory(user.getId());
     }
 }

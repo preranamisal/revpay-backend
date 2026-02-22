@@ -12,6 +12,10 @@ import com.revpay.revpay_backend.model.*;
 import com.revpay.revpay_backend.repository.TransactionRepository;
 import com.revpay.revpay_backend.repository.UserRepository;
 
+
+import java.util.List;
+import java.util.stream.Collectors;
+import com.revpay.revpay_backend.dto.TransactionResponse;
 @Service
 public class TransactionService {
 
@@ -137,5 +141,27 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         return "Money withdrawn successfully";
+    }
+    
+    
+    @Transactional(readOnly = true)
+    public List<TransactionResponse> getTransactionHistory(Long userId) {
+
+        List<Transaction> transactions =
+                transactionRepository
+                    .findBySenderIdOrReceiverIdOrderByCreatedAtDesc(userId, userId);
+
+        return transactions.stream()
+                .map(tx -> new TransactionResponse(
+                        tx.getId(),
+                        tx.getSenderId(),
+                        tx.getReceiverId(),
+                        tx.getAmount(),
+                        tx.getType(),
+                        tx.getStatus(),
+                        tx.getNote(),
+                        tx.getCreatedAt()
+                ))
+                .toList();
     }
 }
