@@ -30,5 +30,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                 LocalDateTime startDate,
                 LocalDateTime endDate
         );
+    
+    List<Transaction> findTop5BySenderIdOrReceiverIdOrderByCreatedAtDesc(
+            Long senderId, Long receiverId);
 
 }

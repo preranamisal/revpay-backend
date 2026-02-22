@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.revpay.revpay_backend.dto.DashboardResponse;
 import com.revpay.revpay_backend.dto.SendMoneyRequest;
 import com.revpay.revpay_backend.model.*;
 import com.revpay.revpay_backend.repository.TransactionRepository;
@@ -190,5 +191,42 @@ public class TransactionService {
                         tx.getCreatedAt()
                 ))
                 .toList();
+    }
+    
+    @Transactional(readOnly = true)
+    public DashboardResponse getDashboard(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Transaction> recent =
+                transactionRepository
+                        .findTop5BySenderIdOrReceiverIdOrderByCreatedAtDesc(userId, userId);
+
+        Long total =
+                transactionRepository
+                        .findBySenderIdOrReceiverIdOrderByCreatedAtDesc(userId, userId)
+                        .stream()
+                        .count();
+
+        List<TransactionResponse> responseList =
+                recent.stream()
+                        .map(tx -> new TransactionResponse(
+                                tx.getId(),
+                                tx.getSenderId(),
+                                tx.getReceiverId(),
+                                tx.getAmount(),
+                                tx.getType(),
+                                tx.getStatus(),
+                                tx.getNote(),
+                                tx.getCreatedAt()
+                        ))
+                        .toList();
+
+        return new DashboardResponse(
+                user.getWalletBalance(),
+                total,
+                responseList
+        );
     }
 }

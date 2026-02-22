@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
 import com.revpay.revpay_backend.dto.AddMoneyRequest;
+import com.revpay.revpay_backend.dto.DashboardResponse;
 import com.revpay.revpay_backend.dto.SendMoneyRequest;
 import com.revpay.revpay_backend.dto.WithdrawRequest;
 import com.revpay.revpay_backend.model.TransactionStatus;
@@ -106,5 +107,16 @@ public class TransactionController {
 
         return transactionService.filterTransactions(
                 user.getId(), type, status, minAmount, start, end);
+    }
+    
+    @GetMapping("/dashboard")
+    public DashboardResponse getDashboard(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return transactionService.getDashboard(user.getId());
     }
 }
