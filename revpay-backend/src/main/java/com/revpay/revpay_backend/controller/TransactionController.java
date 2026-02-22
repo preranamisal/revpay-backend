@@ -6,12 +6,16 @@ import org.springframework.security.core.Authentication;
 import com.revpay.revpay_backend.dto.AddMoneyRequest;
 import com.revpay.revpay_backend.dto.SendMoneyRequest;
 import com.revpay.revpay_backend.dto.WithdrawRequest;
+import com.revpay.revpay_backend.model.TransactionStatus;
+import com.revpay.revpay_backend.model.TransactionType;
 import com.revpay.revpay_backend.model.User;
 import com.revpay.revpay_backend.repository.UserRepository;
 import com.revpay.revpay_backend.service.TransactionService;
 
 import java.util.List;
 import com.revpay.revpay_backend.dto.TransactionResponse;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/transactions")
@@ -71,5 +75,36 @@ public class TransactionController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return transactionService.getTransactionHistory(user.getId());
+    }
+    
+    
+    @GetMapping("/filter")
+    public List<TransactionResponse> filterTransactions(
+            Authentication authentication,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) TransactionStatus status,
+            @RequestParam(required = false) Double minAmount,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate
+    ) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        java.time.LocalDateTime start = null;
+        java.time.LocalDateTime end = null;
+
+        if (startDate != null) {
+            start = java.time.LocalDate.parse(startDate).atStartOfDay();
+        }
+
+        if (endDate != null) {
+            end = java.time.LocalDate.parse(endDate).atTime(23,59,59);
+        }
+
+        return transactionService.filterTransactions(
+                user.getId(), type, status, minAmount, start, end);
     }
 }

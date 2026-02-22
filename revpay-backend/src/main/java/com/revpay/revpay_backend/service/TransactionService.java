@@ -164,4 +164,31 @@ public class TransactionService {
                 ))
                 .toList();
     }
+    
+    @Transactional(readOnly = true)
+    public List<TransactionResponse> filterTransactions(
+            Long userId,
+            TransactionType type,
+            TransactionStatus status,
+            Double minAmount,
+            LocalDateTime startDate,
+            LocalDateTime endDate) {
+
+        List<Transaction> transactions =
+                transactionRepository.filterTransactions(
+                        userId, type, status, minAmount, startDate, endDate);
+
+        return transactions.stream()
+                .map(tx -> new TransactionResponse(
+                        tx.getId(),
+                        tx.getSenderId(),
+                        tx.getReceiverId(),
+                        tx.getAmount(),
+                        tx.getType(),
+                        tx.getStatus(),
+                        tx.getNote(),
+                        tx.getCreatedAt()
+                ))
+                .toList();
+    }
 }
