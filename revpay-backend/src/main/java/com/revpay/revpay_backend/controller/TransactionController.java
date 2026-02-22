@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 
 import com.revpay.revpay_backend.dto.AddMoneyRequest;
 import com.revpay.revpay_backend.dto.SendMoneyRequest;
+import com.revpay.revpay_backend.dto.WithdrawRequest;
 import com.revpay.revpay_backend.model.User;
 import com.revpay.revpay_backend.repository.UserRepository;
 import com.revpay.revpay_backend.service.TransactionService;
@@ -44,5 +45,17 @@ public class TransactionController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return transactionService.addMoney(user.getId(), request.getAmount());
+    }
+    
+    @PostMapping("/withdraw")
+    public String withdrawMoney(@RequestBody WithdrawRequest request,
+                                Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return transactionService.withdrawMoney(user.getId(), request.getAmount());
     }
 }
