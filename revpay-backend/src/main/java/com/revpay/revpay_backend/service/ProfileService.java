@@ -66,4 +66,36 @@ public class ProfileService {
 
         return "Password changed successfully";
     }
+    
+ // Set PIN
+    public String setPin(String email, SetPinDTO dto) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getTransactionPin() != null) {
+            throw new RuntimeException("PIN already set. Use change PIN.");
+        }
+
+        user.setTransactionPin(passwordEncoder.encode(dto.getPin()));
+        userRepository.save(user);
+
+        return "Transaction PIN set successfully";
+    }
+
+    // Change PIN
+    public String changePin(String email, ChangePinDTO dto) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(dto.getCurrentPin(), user.getTransactionPin())) {
+            throw new RuntimeException("Current PIN is incorrect");
+        }
+
+        user.setTransactionPin(passwordEncoder.encode(dto.getNewPin()));
+        userRepository.save(user);
+
+        return "Transaction PIN changed successfully";
+    }
 }

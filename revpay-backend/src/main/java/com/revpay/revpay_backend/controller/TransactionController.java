@@ -64,7 +64,7 @@ public class TransactionController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return transactionService.withdrawMoney(user.getId(), request.getAmount());
+        return transactionService.withdrawMoney(user.getId(), request.getAmount(),request.getPin());
     }
     
     @GetMapping("/history")

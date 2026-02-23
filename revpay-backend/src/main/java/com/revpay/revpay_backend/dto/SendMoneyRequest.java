@@ -5,6 +5,7 @@ public class SendMoneyRequest {
     private Long receiverId;
     private Double amount;
     private String note;
+    private String pin;
 
     public Long getReceiverId() {
         return receiverId;
@@ -28,5 +29,14 @@ public class SendMoneyRequest {
 
     public void setNote(String note) {
         this.note = note;
+    }
+    
+    public String getPin() {
+        return pin;
+    }
+
+    
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 }

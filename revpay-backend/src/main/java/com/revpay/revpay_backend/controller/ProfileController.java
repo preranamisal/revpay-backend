@@ -35,4 +35,16 @@ public class ProfileController {
                                  Authentication authentication) {
         return service.changePassword(authentication.getName(), dto);
     }
+    
+    @PutMapping("/set-pin")
+    public String setPin(@RequestBody SetPinDTO dto,
+                         Authentication authentication) {
+        return service.setPin(authentication.getName(), dto);
+    }
+
+    @PutMapping("/change-pin")
+    public String changePin(@RequestBody ChangePinDTO dto,
+                            Authentication authentication) {
+        return service.changePin(authentication.getName(), dto);
+    }
 }
