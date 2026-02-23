@@ -254,14 +254,17 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
     public TransactionService(UserRepository userRepository,
-                              TransactionRepository transactionRepository,
-                              PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.transactionRepository = transactionRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+            TransactionRepository transactionRepository,
+            PasswordEncoder passwordEncoder,
+            NotificationService notificationService) {
+this.userRepository = userRepository;
+this.transactionRepository = transactionRepository;
+this.passwordEncoder = passwordEncoder;
+this.notificationService = notificationService;
+}
 
     // ==========================
     // SEND MONEY (WITH PIN)
@@ -296,6 +299,18 @@ public class TransactionService {
         if (sender.getWalletBalance() < request.getAmount()) {
             throw new RuntimeException("Insufficient balance");
         }
+        
+        notificationService.createNotification(
+                sender.getId(),
+                "Money Sent",
+                "You sent ₹" + request.getAmount() + " to user ID " + receiver.getId()
+        );
+
+        notificationService.createNotification(
+                receiver.getId(),
+                "Money Received",
+                "You received ₹" + request.getAmount() + " from user ID " + sender.getId()
+        );
 
         // Deduct from sender
         sender.setWalletBalance(sender.getWalletBalance() - request.getAmount());
@@ -319,6 +334,8 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         return "Money sent successfully";
+        
+        
     }
 
     // ==========================
@@ -336,6 +353,12 @@ public class TransactionService {
 
         user.setWalletBalance(user.getWalletBalance() + amount);
         userRepository.save(user);
+        
+        notificationService.createNotification(
+                user.getId(),
+                "Wallet Credited",
+                "₹" + amount + " added to your wallet"
+        );
 
         Transaction transaction = new Transaction();
         transaction.setSenderId(user.getId());
@@ -377,6 +400,12 @@ public class TransactionService {
         if (user.getWalletBalance() < amount) {
             throw new RuntimeException("Insufficient balance");
         }
+        
+        notificationService.createNotification(
+                user.getId(),
+                "Withdrawal Successful",
+                "₹" + amount + " withdrawn from wallet"
+        );
 
         user.setWalletBalance(user.getWalletBalance() - amount);
         userRepository.save(user);
