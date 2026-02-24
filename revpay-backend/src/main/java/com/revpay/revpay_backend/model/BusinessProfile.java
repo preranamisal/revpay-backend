@@ -22,6 +22,10 @@ public class BusinessProfile {
     private boolean verified; // admin approval simulation
 
     private String documentName; // simulated document upload
+    
+
+    @Enumerated(EnumType.STRING)
+    private BusinessStatus status;
 
     private LocalDateTime createdAt;
 
@@ -59,6 +63,14 @@ public class BusinessProfile {
 
 	public String getTaxId() {
 		return taxId;
+	}
+
+	public BusinessStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(BusinessStatus status) {
+		this.status = status;
 	}
 
 	public void setTaxId(String taxId) {

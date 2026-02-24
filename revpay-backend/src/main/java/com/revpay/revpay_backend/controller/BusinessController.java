@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.revpay.revpay_backend.dto.BusinessRegisterDTO;
+import com.revpay.revpay_backend.dto.BusinessVerificationDTO;
 import com.revpay.revpay_backend.model.User;
 import com.revpay.revpay_backend.repository.UserRepository;
 import com.revpay.revpay_backend.service.BusinessService;
@@ -34,6 +35,16 @@ import com.revpay.revpay_backend.service.BusinessService;
 	                .orElseThrow(() -> new RuntimeException("User not found"));
 
 	        return service.createBusinessProfile(user.getId(), dto);
+	    }
+	    @PostMapping("/verify")
+	    public String submitVerification(
+	            @RequestBody BusinessVerificationDTO dto,
+	            @AuthenticationPrincipal UserDetails userDetails) {
+
+	        User user = userRepository.findByEmail(userDetails.getUsername())
+	                .orElseThrow(() -> new RuntimeException("User not found"));
+
+	        return service.submitVerification(user.getId(), dto.getDocumentName());
 	    }
 	}
 

@@ -43,4 +43,22 @@ public class BusinessService {
 
         return "Business profile created. Awaiting verification.";
     }
+    
+    public String submitVerification(Long userId, String documentName) {
+
+        BusinessProfile profile = repository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Business profile not found"));
+
+        if (profile.getStatus() == BusinessStatus.APPROVED) {
+            throw new RuntimeException("Business already verified");
+        }
+
+        profile.setDocumentName(documentName);
+        profile.setStatus(BusinessStatus.PENDING);
+
+        repository.save(profile);
+
+        return "Verification document submitted. Awaiting approval.";
+    }
+    
 }
