@@ -1,63 +1,3 @@
-//package com.revpay.revpay_backend.service;
-//
-//import org.springframework.stereotype.Service;
-//import java.time.LocalDateTime;
-//
-//import com.revpay.revpay_backend.dto.*;
-//import com.revpay.revpay_backend.model.*;
-//import com.revpay.revpay_backend.repository.*;
-//
-//@Service
-//public class InvoiceService {
-//
-//    private final InvoiceRepository invoiceRepo;
-//    private final InvoiceItemRepository itemRepo;
-//
-//    public InvoiceService(InvoiceRepository invoiceRepo,
-//                          InvoiceItemRepository itemRepo) {
-//        this.invoiceRepo = invoiceRepo;
-//        this.itemRepo = itemRepo;
-//    }
-//
-//    public String createInvoice(Long businessId, CreateInvoiceDTO dto) {
-//
-//        Invoice invoice = new Invoice();
-//        invoice.setBusinessId(businessId);
-//        invoice.setCustomerName(dto.getCustomerName());
-//        invoice.setStatus("DRAFT");
-//        invoice.setCreatedAt(LocalDateTime.now());
-//
-//        invoiceRepo.save(invoice);
-//
-//        double total = 0;
-//        double totalTax = 0;
-//
-//        for (InvoiceItemDTO itemDTO : dto.getItems()) {
-//
-//            InvoiceItem item = new InvoiceItem();
-//            item.setInvoiceId(invoice.getId());
-//            item.setDescription(itemDTO.getDescription());
-//            item.setQuantity(itemDTO.getQuantity());
-//            item.setUnitPrice(itemDTO.getUnitPrice());
-//            item.setTax(itemDTO.getTax());
-//
-//            itemRepo.save(item);
-//
-//            double itemTotal =
-//                    itemDTO.getQuantity() * itemDTO.getUnitPrice();
-//
-//            total += itemTotal;
-//            totalTax += itemDTO.getTax();
-//        }
-//
-//        invoice.setTotalAmount(total + totalTax);
-//        invoice.setTotalTax(totalTax);
-//
-//        invoiceRepo.save(invoice);
-//
-//        return "Invoice created successfully";
-//    }
-//}
 
 package com.revpay.revpay_backend.service;
 
@@ -77,11 +17,14 @@ public class InvoiceService {
 
     private final InvoiceRepository invoiceRepo;
     private final InvoiceItemRepository itemRepo;
+    private final NotificationService notificationService;
 
     public InvoiceService(InvoiceRepository invoiceRepo,
-                          InvoiceItemRepository itemRepo) {
+                          InvoiceItemRepository itemRepo,
+                          NotificationService notificationService) {
         this.invoiceRepo = invoiceRepo;
         this.itemRepo = itemRepo;
+        this.notificationService=notificationService;
     }
 
     @Transactional
@@ -151,6 +94,13 @@ public class InvoiceService {
 
         invoice.setStatus(InvoiceStatus.SENT);
         invoiceRepo.save(invoice);
+        notificationService.sendNotification(
+                invoice.getBusinessId(),
+                NotificationType.INVOICE_SENT,
+                "Invoice Sent",
+                "Invoice sent to " + invoice.getCustomerName(),
+                invoice.getCustomerEmail()
+        );
 
         return "Invoice sent to customer";
     }
