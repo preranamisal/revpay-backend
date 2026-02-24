@@ -10,6 +10,11 @@ import org.springframework.data.repository.query.Param;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findBySenderIdOrReceiverId(Long senderId, Long receiverId);
+    @Query("SELECT COALESCE(SUM(t.amount),0) FROM Transaction t WHERE t.receiverId = :businessId")
+    Double getTotalReceived(@Param("businessId") Long businessId);
+
+    @Query("SELECT COALESCE(SUM(t.amount),0) FROM Transaction t WHERE t.senderId = :businessId")
+    Double getTotalSent(@Param("businessId") Long businessId);
     
     List<Transaction> findBySenderIdOrReceiverIdOrderByCreatedAtDesc(Long senderId, Long receiverId);
     
