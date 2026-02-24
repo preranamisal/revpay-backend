@@ -6,6 +6,7 @@ import com.revpay.revpay_backend.model.Transaction;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findBySenderIdOrReceiverId(Long senderId, Long receiverId);
@@ -31,7 +32,23 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                 LocalDateTime endDate
         );
     
+    
     List<Transaction> findTop5BySenderIdOrReceiverIdOrderByCreatedAtDesc(
             Long senderId, Long receiverId);
+    
+    @Query("""
+            SELECT t FROM Transaction t
+            JOIN User sender ON t.senderId = sender.id
+            JOIN User receiver ON t.receiverId = receiver.id
+            WHERE
+                (CAST(t.id AS string) LIKE %:keyword%)
+                OR LOWER(sender.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(receiver.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(sender.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(receiver.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            ORDER BY t.createdAt DESC
+        """)
+        List<Transaction> searchTransactions(@Param("keyword") String keyword);
+
 
 }

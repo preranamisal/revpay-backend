@@ -1,7 +1,10 @@
 package com.revpay.revpay_backend.controller;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.revpay.revpay_backend.dto.AddMoneyRequest;
 import com.revpay.revpay_backend.dto.DashboardResponse;
@@ -13,8 +16,13 @@ import com.revpay.revpay_backend.model.User;
 import com.revpay.revpay_backend.repository.UserRepository;
 import com.revpay.revpay_backend.service.TransactionService;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 import com.revpay.revpay_backend.dto.TransactionResponse;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -118,5 +126,59 @@ public class TransactionController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return transactionService.getDashboard(user.getId());
+    }
+    
+    @GetMapping("/search")
+    public List<TransactionResponse> searchTransactions(
+            @RequestParam String keyword,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return transactionService.searchTransactions(user.getId(), keyword);
+    }
+    
+    @GetMapping("/export/csv")
+    public ResponseEntity<byte[]> exportCsv(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String csv = transactionService.generateCsv(user.getId());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=transactions.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csv.getBytes());
+    }
+    
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> exportPdf(
+            @AuthenticationPrincipal UserDetails userDetails) throws Exception {
+
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        byte[] pdf = transactionService.generatePdf(user.getId());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=transactions.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+    
+    @PostMapping("/wallet/add-money")
+    public String addMoney(
+            @Valid @RequestBody AddMoneyRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return transactionService.addMoneyFromCard(user.getId(), request);
     }
 }

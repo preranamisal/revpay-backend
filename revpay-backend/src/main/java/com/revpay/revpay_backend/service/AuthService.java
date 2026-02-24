@@ -42,6 +42,8 @@ public class AuthService {
         user.setPhone(request.getPhone());
         user.setPassword(encoder.encode(request.getPassword()));
         user.setRole(role);
+        user.setSecurityQuestion(request.getSecurityQuestion());
+        user.setSecurityAnswer(encoder.encode(request.getSecurityAnswer()));
         user.setBusinessName(request.getBusinessName());
         user.setBusinessType(request.getBusinessType());
         user.setTaxId(request.getTaxId());
@@ -53,9 +55,30 @@ public class AuthService {
         return "Registration Successful";
     }
 
+//    public AuthResponse login(LoginRequest request) {
+//
+//    	User user = userRepository.findByEmail(request.getUsername())
+//    	        .or(() -> userRepository.findByPhone(request.getUsername()))
+//    	        .orElseThrow(() -> new RuntimeException("User not found"));
+//    	
+//        if (!encoder.matches(request.getPassword(), user.getPassword())) {
+//            throw new RuntimeException("Invalid Credentials");
+//        }
+//
+//        String token = jwtUtil.generateToken(user.getEmail());
+//
+//        // 🔥 Manual object creation instead of builder
+//        AuthResponse response = new AuthResponse();
+//        response.setToken(token);
+//        response.setEmail(user.getEmail());
+//        response.setRole(user.getRole().name());
+//
+//        return response;
+//    }
     public AuthResponse login(LoginRequest request) {
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getUsername())
+                .or(() -> userRepository.findByPhone(request.getUsername()))
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!encoder.matches(request.getPassword(), user.getPassword())) {
@@ -64,7 +87,6 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        // 🔥 Manual object creation instead of builder
         AuthResponse response = new AuthResponse();
         response.setToken(token);
         response.setEmail(user.getEmail());

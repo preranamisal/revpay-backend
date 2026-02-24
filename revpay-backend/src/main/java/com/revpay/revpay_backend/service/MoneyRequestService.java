@@ -116,4 +116,25 @@ public class MoneyRequestService {
 
         return "Request declined";
     }
+    
+    @Transactional
+    public String cancelRequest(Long requestId, Long userId) {
+
+        MoneyRequest request = moneyRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+
+        // Only requester can cancel
+        if (!request.getRequesterId().equals(userId)) {
+            throw new RuntimeException("Unauthorized action");
+        }
+
+        if (request.getStatus() != MoneyRequestStatus.PENDING) {
+            throw new RuntimeException("Only pending requests can be cancelled");
+        }
+
+        request.setStatus(MoneyRequestStatus.CANCELLED);
+        moneyRequestRepository.save(request);
+
+        return "Request cancelled successfully";
+    }
 }

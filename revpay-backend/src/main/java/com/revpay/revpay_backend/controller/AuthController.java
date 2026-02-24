@@ -6,6 +6,7 @@ import com.revpay.revpay_backend.dto.LoginRequest;
 import com.revpay.revpay_backend.dto.RegisterRequest;
 import com.revpay.revpay_backend.dto.AuthResponse;
 import com.revpay.revpay_backend.service.AuthService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")   // ✅ path required
@@ -19,12 +20,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
+    public String register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest request) {
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
 }

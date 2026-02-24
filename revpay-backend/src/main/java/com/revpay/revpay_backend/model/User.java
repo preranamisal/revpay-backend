@@ -3,6 +3,7 @@ package com.revpay.revpay_backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Date;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Getter
@@ -16,18 +17,27 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    @NotBlank
     private String fullName;
-
+    
+    @Email
     @Column(unique = true)
     private String email;
 
     private String phone;
-
+    
+    @NotBlank
     private String password;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+    
+    @Column(nullable = false)
+    private String securityQuestion;
+
+    @Column(nullable = false)
+    private String securityAnswer;
 
     private Double walletBalance = 0.0;
 
@@ -125,5 +135,17 @@ public class User {
 	}
 	public void setBusinessAddress(String businessAddress) {
 		this.businessAddress = businessAddress;
+	}
+	public String getSecurityQuestion() {
+		return securityQuestion;
+	}
+	public void setSecurityQuestion(String securityQuestion) {
+		this.securityQuestion = securityQuestion;
+	}
+	public String getSecurityAnswer() {
+		return securityAnswer;
+	}
+	public void setSecurityAnswer(String securityAnswer) {
+		this.securityAnswer = securityAnswer;
 	}
 }

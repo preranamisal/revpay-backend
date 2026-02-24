@@ -26,13 +26,14 @@ public class PaymentMethodService {
         method.setCardNumber(dto.getCardNumber());
         method.setExpiry(dto.getExpiry());
         method.setCardHolderName(dto.getCardHolderName());
+        method.setCvv(dto.getCvv());
+        method.setBillingAddress(dto.getBillingAddress());
         method.setDefault(false);
 
         repository.save(method);
 
         return "Payment method added successfully";
     }
-
     // View all cards
     public List<PaymentMethod> getMethods(Long userId) {
         return repository.findByUserId(userId);
@@ -46,6 +47,7 @@ public class PaymentMethodService {
 
         for (PaymentMethod m : methods) {
             m.setDefault(false);
+            repository.save(m);
         }
 
         PaymentMethod selected = repository.findById(id)
@@ -56,8 +58,27 @@ public class PaymentMethodService {
         }
 
         selected.setDefault(true);
+        repository.save(selected);
 
         return "Default payment method updated";
+    }
+    
+    //update
+    public String update(Long id, Long userId, PaymentMethodDTO dto) {
+
+        PaymentMethod method = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+
+        if (!method.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        method.setExpiry(dto.getExpiry());
+        method.setBillingAddress(dto.getBillingAddress());
+
+        repository.save(method);
+
+        return "Payment method updated";
     }
 
     // Delete card

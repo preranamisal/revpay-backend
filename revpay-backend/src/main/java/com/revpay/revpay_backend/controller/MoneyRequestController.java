@@ -2,6 +2,8 @@ package com.revpay.revpay_backend.controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.revpay.revpay_backend.dto.CreateMoneyRequestDTO;
 import com.revpay.revpay_backend.model.User;
@@ -69,5 +71,19 @@ public class MoneyRequestController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return service.declineRequest(id, user.getId());
+    }
+    
+    @PostMapping("/{id}/cancel")
+    public String cancelRequest(@PathVariable Long id,
+                                @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return service.cancelRequest(id, user.getId());
     }
 }

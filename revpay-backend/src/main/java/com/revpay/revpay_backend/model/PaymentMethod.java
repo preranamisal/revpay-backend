@@ -1,5 +1,7 @@
 package com.revpay.revpay_backend.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -15,8 +17,39 @@ public class PaymentMethod {
     private String cardNumber;
     private String expiry;
     private String cardHolderName;
+    private String cvv;
 
-    private boolean isDefault;
+    private String billingAddress;
+    private LocalDateTime createdAt;
+
+    public String getCvv() {
+		return cvv;
+	}
+
+	public void setCvv(String cvv) {
+		this.cvv = cvv;
+	}
+
+	public String getBillingAddress() {
+		return billingAddress;
+	}
+
+	public void setBillingAddress(String billingAddress) {
+		this.billingAddress = billingAddress;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+	private boolean isDefault;
 
     // Getters & Setters
 

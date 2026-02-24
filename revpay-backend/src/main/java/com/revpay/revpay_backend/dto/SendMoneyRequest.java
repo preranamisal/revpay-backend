@@ -2,20 +2,22 @@ package com.revpay.revpay_backend.dto;
 
 public class SendMoneyRequest {
 
-    private Long receiverId;
+	private String receiverIdentifier; // ID OR email OR phone
     private Double amount;
     private String note;
     private String pin;
 
-    public Long getReceiverId() {
-        return receiverId;
-    }
+    
 
-    public void setReceiverId(Long receiverId) {
-        this.receiverId = receiverId;
-    }
+    public String getReceiverIdentifier() {
+		return receiverIdentifier;
+	}
 
-    public Double getAmount() {
+	public void setReceiverIdentifier(String receiverIdentifier) {
+		this.receiverIdentifier = receiverIdentifier;
+	}
+
+	public Double getAmount() {
         return amount;
     }
 
